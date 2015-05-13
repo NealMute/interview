@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
     int expectedSteps[] = {25, 4, 7, 10, 14, 15, 3, 12, 13, 14, 20};
     for (size_t i = 0; i < H_ARRAYSIZE(input); ++i)
     {
-    	resolve(input[i]);
-        //assert(resolve(input[i]) == expectedSteps[i]);
+    	//resolve(input[i]);
+        assert(resolve(input[i]) == expectedSteps[i]);
     }
     return 0;
 }

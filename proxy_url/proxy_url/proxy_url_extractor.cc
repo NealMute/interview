@@ -1,7 +1,7 @@
-
 #include "proxy_url_extractor.h"
 #include <fstream>
 #include <vector>
+#include <iostream>
 #include "tokener.h"
 
 namespace qh
@@ -99,9 +99,37 @@ namespace qh
     void ProxyURLExtractor::Extract( const KeyItems& keys, const std::string& raw_url, std::string& sub_url )
     {
 #if 1
-        //TODO ÇëÃæÊÔÕßÔÚÕâÀïÌí¼Ó×Ô¼ºµÄ´úÂëÊµÏÖÒÔÍê³ÉËùĞè¹¦ÄÜ
+        //TODO è¯·é¢è¯•è€…åœ¨è¿™é‡Œæ·»åŠ è‡ªå·±çš„ä»£ç å®ç°ä»¥å®Œæˆæ‰€éœ€åŠŸèƒ½	
+		Tokener token(raw_url);
+        token.skipTo('?');
+        token.next(); //skip one char : '?' 
+        std::string tmp_url(token.getCurReadPos());
+
+		sub_url = "";
+		if (tmp_url.find("=") == std::string::npos){
+			return;
+		}
+
+		std::vector<std::string> strVec;
+		StringSplit(tmp_url, "&", 0xffffffff, strVec);
+
+		if (strVec.size() == 0){
+			return;
+		}
+		
+		std::vector<std::string>::iterator it;
+		for (it = strVec.begin(); it != strVec.end(); it++){
+			std::vector<std::string> kvec;
+			StringSplit(*it, "=", 2, kvec);
+			if (keys.find(kvec[0]) != keys.end()){
+				if(kvec.size() > 1){
+					sub_url = kvec[1];
+					break;
+				}
+			}
+		}
 #else
-        //ÕâÊÇÒ»·İ²Î¿¼ÊµÏÖ£¬µ«ÔÚÌØÊâÇé¿öÏÂ¹¤×÷²»ÄÜ·ûºÏÔ¤ÆÚ
+        //è¿™æ˜¯ä¸€ä»½å‚è€ƒå®ç°ï¼Œä½†åœ¨ç‰¹æ®Šæƒ…å†µä¸‹å·¥ä½œä¸èƒ½ç¬¦åˆé¢„æœŸ
         Tokener token(raw_url);
         token.skipTo('?');
         token.next(); //skip one char : '?' 
@@ -111,14 +139,12 @@ namespace qh
             if (keys.find(key) != keys.end()) {
                 const char* curpos = token.getCurReadPos();
                 int nreadable = token.getReadableSize();
-
                 /**
                 * case 1: 
                 *  raw_url="http://www.microsofttranslator.com/bv.aspx?from=&to=zh-chs&a=http://hnujug.com/&xx=yy"
                 *  sub_url="http://hnujug.com/"
                 */
                 sub_url = token.nextString('&');
-
                 if (sub_url.empty() && nreadable > 0) {
                     /**
                     * case 2: 
@@ -142,4 +168,3 @@ namespace qh
         return sub_url;
     }
 }
-

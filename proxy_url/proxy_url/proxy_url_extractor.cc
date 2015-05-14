@@ -100,34 +100,34 @@ namespace qh
     {
 #if 1
         //TODO 请面试者在这里添加自己的代码实现以完成所需功能	
-		Tokener token(raw_url);
+        Tokener token(raw_url);
         token.skipTo('?');
         token.next(); //skip one char : '?' 
         std::string tmp_url(token.getCurReadPos());
 
-		sub_url = "";
-		if (tmp_url.find("=") == std::string::npos){
+        sub_url = "";
+        if (tmp_url.find("=") == std::string::npos){
+            return;
+        }
+
+        std::vector<std::string> strVec;
+        StringSplit(tmp_url, "&", 0xffffffff, strVec);
+        
+        if (strVec.size() == 0){
 			return;
 		}
 
-		std::vector<std::string> strVec;
-		StringSplit(tmp_url, "&", 0xffffffff, strVec);
-
-		if (strVec.size() == 0){
-			return;
-		}
-		
-		std::vector<std::string>::iterator it;
-		for (it = strVec.begin(); it != strVec.end(); it++){
-			std::vector<std::string> kvec;
-			StringSplit(*it, "=", 2, kvec);
-			if (keys.find(kvec[0]) != keys.end()){
-				if(kvec.size() > 1){
-					sub_url = kvec[1];
-					break;
-				}
-			}
-		}
+        std::vector<std::string>::iterator it;
+        for (it = strVec.begin(); it != strVec.end(); it++){
+            std::vector<std::string> kvec;
+            StringSplit(*it, "=", 2, kvec);
+            if (keys.find(kvec[0]) != keys.end()){
+                if(kvec.size() > 1){
+                    sub_url = kvec[1];
+                    break;
+                }
+            }
+        }
 #else
         //这是一份参考实现，但在特殊情况下工作不能符合预期
         Tokener token(raw_url);
